@@ -5,38 +5,35 @@ $password = "";
 $dbname = "DB";
 
 $conn = new mysqli($servername, $username, $password);
-if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
-
 
 $sql = "CREATE DATABASE IF NOT EXISTS $dbname";
-if (!mysqli_query($conn, $sql)) {
-    echo "Erreur : " . mysqli_error($conn);
+if (!$conn->query($sql)) {
+    echo "Erreur : " . $conn->error;
 }
 
-
-mysqli_select_db($conn, $dbname);
-
+$conn->select_db($dbname);
 
 $fil = "CREATE TABLE IF NOT EXISTS filiere (
     nom_fil VARCHAR(20) NOT NULL PRIMARY KEY,
     annee DATE,
     reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )";
-if (!mysqli_query($conn, $fil)) {
-    echo "Erreur de creation de la table 'filiere' : " . mysqli_error($conn);
+if (!$conn->query($fil)) {
+    echo "Erreur de creation de la table 'filiere' : " . $conn->error;
 }
 
 $grp = "CREATE TABLE IF NOT EXISTS groupe (
-    num_grp int NOT NULL PRIMARY KEY,
-    nom_grp VARCHAR(25) NOT NULL ,
+    num_grp INT NOT NULL PRIMARY KEY,
+    nom_grp VARCHAR(25) NOT NULL,
     nom_fil VARCHAR(20),
     reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (nom_fil) REFERENCES filiere(nom_fil)
 )";
-if (!mysqli_query($conn, $grp)) {
-    echo "Erreur de creation de la table 'groupe' : " . mysqli_error($conn);
+if (!$conn->query($grp)) {
+    echo "Erreur de creation de la table 'groupe' : " . $conn->error;
 }
 
 $query = "CREATE TABLE IF NOT EXISTS prof (
@@ -49,24 +46,21 @@ $query = "CREATE TABLE IF NOT EXISTS prof (
     reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (nom_fil) REFERENCES filiere(nom_fil)
 )";
-if (!mysqli_query($conn, $query)) {
-    echo "Erreur de creation de la table 'prof' : " . mysqli_error($conn);
+if (!$conn->query($query)) {
+    echo "Erreur de creation de la table 'prof' : " . $conn->error;
 }
 
 $txt = "CREATE TABLE IF NOT EXISTS cahier (
     id_prof INT(6) UNSIGNED,
-    nom_grp VARCHAR(25),
+    num_grp INT,
     reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (id_prof, nom_grp),
+    PRIMARY KEY (id_prof, num_grp),
     FOREIGN KEY (id_prof) REFERENCES prof(id_prof),
-    FOREIGN KEY (nom_grp) REFERENCES groupe(nom_grp)
+    FOREIGN KEY (num_grp) REFERENCES groupe(num_grp)
 )";
-if (!mysqli_query($conn, $txt)) {
-    echo "Erreur de creation de la table 'cahier' : " . mysqli_error($conn);
+if (!$conn->query($txt)) {
+    echo "Erreur de creation de la table 'cahier' : " . $conn->error;
 }
 
-
-
-
-mysqli_close($conn);
+$conn->close();
 ?>
