@@ -85,9 +85,9 @@ if(!$conn->query($adm)){
 }
 
 $ens ="CREATE TABLE IF NOT EXISTS enseigner(
- id_prof INT(6) UNSIGNED  NOT NULL,
+ id_prof INT(6) UNSIGNED NOT NULL,
  nom_module VARCHAR(20) NOT NULL,
- num_grp INT UNSIGNED NOT NULL,
+ num_grp INT NOT NULL ,
  reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
  PRIMARY KEY(id_prof,nom_module,num_grp),
  FOREIGN KEY(nom_module) REFERENCES module(nom_module),
@@ -137,7 +137,7 @@ $ent ="CREATE TABLE IF NOT EXISTS entree(
 
  $sea ="CREATE TABLE IF NOT EXISTS seance(
     id_seance INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    id_ent INT  NOT NULL,
+    id_ent INT UNSIGNED NOT NULL,
     FOREIGN KEY (id_ent) REFERENCES entree(id_ent)
         )";
         
