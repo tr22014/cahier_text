@@ -49,7 +49,7 @@ if (isset($_POST['submit'])) {
             $hashed_pass = password_hash($pass, PASSWORD_DEFAULT);
 
             // Insert new user data into the 'prof' table
-            $query = "INSERT INTO prof (nom, prenom, email, pass) VALUES (?, ?, ?, ?)";
+            $query = "INSERT INTO prof (firstname, lastname, email, pass) VALUES (?, ?, ?, ?)";
             $stmt = mysqli_prepare($con, $query);
             mysqli_stmt_bind_param($stmt, "ssss", $firstname, $lastname, $email, $hashed_pass);
 
