@@ -106,7 +106,7 @@
                         <label for="login-password" class="x">Password:</label>
                         <input type="password" id="login-password" name="password" placeholder="Password" required>
                         
-                        <input type="submit" name="submit" value="Log In">
+                        <input type="submit" name="submit" value="Log In" >
                         <p class="text-muted">Don't have an account? <a href="signup.php" style="text-decoration: none;">Sign Up</a></p>
 
                         <?php

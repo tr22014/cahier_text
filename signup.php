@@ -1,73 +1,92 @@
 <?php
-session_start();  
+session_start();
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "DB";
+class UserRegistration {
+    private $conn;
+    private $error_message = "";
 
-// Connect to the database
-$con = mysqli_connect($servername, $username, $password, $dbname);
+    public function __construct($servername, $username, $password, $dbname) {
+        // Establish the database connection
+        $this->conn = new mysqli($servername, $username, $password, $dbname);
 
-if (!$con) {
-    die("Connection failed: " . mysqli_connect_error());
+        if ($this->conn->connect_error) {
+            die("Connection failed: " . $this->conn->connect_error);
+        }
+    }
+
+    public function registerUser($firstname, $lastname, $email, $pass, $cpass) {
+        // Validate input
+        if (empty($firstname) || empty($lastname) || empty($email) || empty($pass) || empty($cpass)) {
+            $this->error_message = "Please fill in all fields.";
+        } elseif (!preg_match("/^[\w\.-]+@emsi\.edu$/", $email)) {
+            $this->error_message = "Email must end with @emsi.edu.";
+        } elseif (strlen($pass) < 8) {
+            $this->error_message = "Password must contain at least 8 characters.";
+        } elseif ($pass !== $cpass) {
+            $this->error_message = "Passwords do not match.";
+        } else {
+            // Check if email exists
+            if ($this->emailExists($email)) {
+                $this->error_message = "Email is already in use by another user.";
+            } else {
+                // Insert user into the database
+                $hashed_pass = password_hash($pass, PASSWORD_DEFAULT);
+                if ($this->insertUser($firstname, $lastname, $email, $hashed_pass)) {
+                    $_SESSION["firstname"] = $firstname;
+                    $_SESSION["lastname"] = $lastname;
+                    $_SESSION["email"] = $email;
+                    header("Location: home.php");
+                    exit;
+                } else {
+                    $this->error_message = "Database error: Unable to register user.";
+                }
+            }
+        }
+        return $this->error_message;
+    }
+
+    private function emailExists($email) {
+        $query = "SELECT id_prof FROM prof WHERE email = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->store_result();
+
+        $exists = $stmt->num_rows > 0;
+        $stmt->close();
+        return $exists;
+    }
+
+    private function insertUser($firstname, $lastname, $email, $hashed_pass) {
+        $query = "INSERT INTO prof (firstname, lastname, email, pass) VALUES (?, ?, ?, ?)";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("ssss", $firstname, $lastname, $email, $hashed_pass);
+
+        $success = $stmt->execute();
+        $stmt->close();
+        return $success;
+    }
+
+    public function closeConnection() {
+        $this->conn->close();
+    }
 }
 
-$error_message = "";
+// Instantiate the UserRegistration class
+$registration = new UserRegistration("localhost", "root", "", "DB");
 
+$error_message = "";
 if (isset($_POST['submit'])) {
     $firstname = $_POST['firstname'];
     $lastname = $_POST['lastname'];
     $email = $_POST['email'];
-    $pass = $_POST['password'];
-    $cpass = $_POST['confirm-password'];
+    $password = $_POST['password'];
+    $confirm_password = $_POST['confirm-password'];
 
-    // Validation checks
-    if (empty($firstname) || empty($lastname) || empty($email) || empty($pass) || empty($cpass)) {
-        $error_message = "Please fill in all fields.";
-    } elseif (!preg_match("/^[\w\.-]+@emsi\.edu$/", $email)) {
-        $error_message = "Email must end with @emsi.edu.";
-    } elseif (strlen($pass) < 8) {
-        $error_message = "Password must contain at least 8 characters.";
-    } elseif ($pass !== $cpass) {
-        $error_message = "Passwords do not match.";
-    } else {
-        // Check if the email is already in the database
-        $sql = "SELECT id_prof FROM prof WHERE email = ?";
-        $stmt = mysqli_prepare($con, $sql);
-        if ($stmt === false) {
-            die('MySQL prepare error: ' . mysqli_error($con));
-        }
-        mysqli_stmt_bind_param($stmt, "s", $email);
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_store_result($stmt);
-
-        if (mysqli_stmt_num_rows($stmt) > 0) {
-            $error_message = "Email is already in use by another user.";
-        } else {
-            // Hash the password
-            $hashed_pass = password_hash($pass, PASSWORD_DEFAULT);
-
-            // Insert new user data into the 'prof' table
-            $query = "INSERT INTO prof (nom, prenom, email, pass) VALUES (?, ?, ?, ?)";
-            $stmt = mysqli_prepare($con, $query);
-            mysqli_stmt_bind_param($stmt, "ssss", $firstname, $lastname, $email, $hashed_pass);
-
-            if (mysqli_stmt_execute($stmt)) {
-                // Set session variables after successful registration
-                $_SESSION["firstname"] = $firstname;
-                $_SESSION["lastname"] = $lastname;
-                $_SESSION["email"] = $email;
-                header("Location: home.php");
-                exit;
-            } else {
-                $error_message = "Database error: " . mysqli_stmt_error($stmt);
-            }
-        }
-        mysqli_stmt_close($stmt);
-    }
+    $error_message = $registration->registerUser($firstname, $lastname, $email, $password, $confirm_password);
 }
-mysqli_close($con);
+
+$registration->closeConnection();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -204,6 +223,13 @@ input[type="submit"]:hover {
 
                     <label for="signup-email" class="x">Email:</label>
                     <input type="email" id="signup-email" name="email" placeholder="Email" required>
+
+                <select name="cars" id="cars">
+                        <option value="volvo">Volvo</option>
+                        <option value="saab">Saab</option>
+                        <option value="opel">Opel</option>
+                        <option value="audi">Audi</option>
+                 </select>
 
                     <label for="signup-password" class="x">Password:</label>
                     <input type="password" id="signup-password" name="password" placeholder="Password" required>
