@@ -22,11 +22,9 @@ public function __construct(){
 function createDatabase($dbName){
     //creating a database with the conn in the class ($this->conn)
             $sql = "CREATE DATABASE $dbName";
-        if (mysqli_query($this->conn, $sql)) {
-        echo "Database created successfully";
-        } else {
-        echo "Error creating database: " . mysqli_error($this->conn);
-        }
+        if (!mysqli_query($this->conn, $sql)) {
+            echo "Error creating database: " . mysqli_error($this->conn);
+        } 
 }
 
 function selectDatabase($dbName){
@@ -38,11 +36,9 @@ function createTable($query){
     
   //creating a table with the query
   
-  if (mysqli_query($this->conn, $query)) {
-   echo "Table Clients created successfully";
-  } else {
-  echo "Error creating table: " . mysqli_error($this->conn);
-  }
+  if (!mysqli_query($this->conn, $query)) {
+    echo "Error creating table: " . mysqli_error($this->conn);
+  } 
   
         
 
