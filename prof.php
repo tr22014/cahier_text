@@ -8,7 +8,7 @@
  public $reg_date;
 
  public static $errorMesage = "";  // Déclaration correcte de la propriété statique
-    public static $successMesage  = "";
+ public static $successMesage  = "";
 
  public function __construct($firstname,$lastname,$email,$pass){
   //initialize the attributs of the class with the parameters, and hash the password
@@ -71,7 +71,7 @@
   //update a client of $id, with the values of $client in parameter and send the user to read.php
             $sql = "UPDATE $tableName SET firstname = '$prof->firstname', lastname ='$prof->lastname' , email = '$prof->email' WHERE id='$id'";
                 if (mysqli_query($conn, $sql)) {
-                self::$successMsg =  "New record updated successfully";
+                self::$successMesage =  "New record updated successfully";
                 header('Location:read.php');
                 } else {
                 self::$errorMesage = "Error: " . $sql . "<br>" . mysqli_error($conn);

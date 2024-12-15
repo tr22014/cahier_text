@@ -79,59 +79,48 @@
  </div>";
   }
     ?>
+    
     <br>
     <form method="post">
       <div class="row mb-3">
-          <label class="col-form-label col-sm-1" for="fname">First
- Name:</label>
+          <label class="col-form-label col-sm-1" for="fname">First Name:</label>
           <div class="col-sm-6">
-            <input value="<?php echo $fnameValue ?>"
- class="form-control" type="text" id="fname" name="firstName">
+            <input value="<?php echo $fnameValue ?>" class="form-control" type="text" id="fname" name="firstName">
           </div>
       </div>
       <div class="row mb-3">
-          <label class="col-form-label col-sm-1" for="lname">Last
- Name:</label>
+          <label class="col-form-label col-sm-1" for="lname">Last Name:</label>
           <div class="col-sm-6">
-            <input value="<?php echo $lnameValue ?>"
- class="form-control" type="text" id="lname" name="lastName">
+            <input value="<?php echo $lnameValue ?>"class="form-control" type="text" id="lname" name="lastName">
           </div>
       </div>
       <div class="row mb-3 ">
-          <label class="col-form-label col-sm-1"
- for="email">Email:</label>
+          <label class="col-form-label col-sm-1" for="email">Email:</label>
           <div class="col-sm-6">
-            <input value=" <?php echo $emailValue ?>"
- class="form-control" type="email" id="email" name="email">
+            <input value=" <?php echo $emailValue ?>" class="form-control" type="email" id="email" name="email">
           </div>
       </div>
       <div class="row mb-3 ">
-          <label class="col-form-label col-sm-1"
- for="password">Password:</label>
+          <label class="col-form-label col-sm-1" for="password">Password:</label>
           <div class="col-sm-6">
-            <input class="form-control" type="password"
- id="password" name="password" >
+            <input class="form-control" type="password" id="password" name="password" >
           </div>
       </div>
       <?php
       if(!empty($successMesage)){
- echo "<div class='alert alert-success alert-dismissible fade show'
- role='alert'>
- <strong>$successMesage</strong>
- <button type='button' class='btn-close' data-bs-dismiss='alert'
- aria-label='Close'>
- </button>
- </div>";
-      }
+          echo "<div class='alert alert-success alert-dismissible fade show' role='alert'>
+          <strong>$successMesage</strong>
+          <button type='button' class='btn-close' data-bs-dismiss='alert'aria-label='Close'></button>
+          </div>";
+                }
  ?> 
    
       <div class="row mb-3">
           <div class="offset-sm-1 col-sm-3 d-grid">
-            <button name="submit" type="submit" class=" btn
- btn-primary">Signup</button>
+            <button name="submit" type="submit" class=" btn btn-primary">Signup</button>
           </div>
           <div class="col-sm-1 col-sm-3 d-grid">
-            <a class="btn btn-outline-primary" >Login</a>
+            <a href = "login.php" class="btn btn-outline-primary" >Login</a>
           </div>
       </div>
     </form>

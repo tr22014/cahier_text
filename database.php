@@ -23,12 +23,12 @@ $queries = [
         annee DATE,
         reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )",
-    "CREATE TABLE IF NOT EXISTS groupe (
-        num_grp INT NOT NULL PRIMARY KEY,
-        nom_grp VARCHAR(25) NOT NULL,
-        nom_fil VARCHAR(20) NOT NULL,
+     "CREATE TABLE IF NOT EXISTS groupe (
+        id_grp INT AUTO_INCREMENT PRIMARY KEY,
+        nom_grp VARCHAR(50) NOT NULL,
+        nom_fil VARCHAR(50) NOT NULL,
         reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (nom_fil) REFERENCES filliere(nom_fil)
+        FOREIGN KEY (nom_fil) REFERENCES filiere(nom_fil) ON DELETE CASCADE
     )",
     "CREATE TABLE IF NOT EXISTS prof (
         id INT(6) UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
@@ -39,14 +39,14 @@ $queries = [
         pass VARCHAR(255) NOT NULL
     )",
     "CREATE TABLE IF NOT EXISTS enseigner (
-        id_prof INT(6) UNSIGNED NOT NULL,
+        id INT(6) UNSIGNED NOT NULL,
         nom_module VARCHAR(20) NOT NULL,
-        num_grp INT NOT NULL,
+        id_grp INT NOT NULL,
         reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         PRIMARY KEY (id_prof, nom_module, num_grp),
         FOREIGN KEY (nom_module) REFERENCES module(nom_module),
-        FOREIGN KEY (id_prof) REFERENCES prof(id),
-        FOREIGN KEY (num_grp) REFERENCES groupe(num_grp)
+        FOREIGN KEY (id) REFERENCES prof(id),
+        FOREIGN KEY (id_grp) REFERENCES groupe(id_grp)
     )",
     "CREATE TABLE IF NOT EXISTS appartient (
         nom_module VARCHAR(20) NOT NULL,
@@ -54,7 +54,14 @@ $queries = [
         PRIMARY KEY (nom_module, nom_fil),
         FOREIGN KEY (nom_module) REFERENCES module(nom_module),
         FOREIGN KEY (nom_fil) REFERENCES filliere(nom_fil)
+    )",
+     "CREATE TABLE IF NOT EXISTS seance (
+        id_seance INT(6) NOT NULL,
+        id INT(6) UNSIGNED NOT NULL,
+        PRIMARY KEY (id_seance),
+        FOREIGN KEY (id) REFERENCES prof(id)
     )"
+
 ];
 
 // Créer les tables

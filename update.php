@@ -1,125 +1,121 @@
 <?php
- $emailValue = "";
- $lnameValue = "";
- $fnameValue = "";
- $errorMesage = "";
- $successMesage = "";
-        //include connection file
-        include('connection.php');
-        
-        //create in instance of class Connection
-        $connection = new Connection();
-        
-        //call the selectDatabase method
-        $connection->selectDatabase('DB');
-        
-        
-        //include the prof file
-                include('prof.php');
+include("connection.php");
+include("prof.php");
 
- if($_SERVER['REQUEST_METHOD']=='GET'){
-  $id = $_GET['id'];
- //call the staticbselectClientById method and store the result of the method in $row
-       $row = Prof::selectProfById('prof' , $connection->conn , $id);
+// Créer une instance de Connection
+$connection = new Connection();
+$connection->selectDatabase("DB");
 
-$emailValue = $row["email"];
- $lnameValue = $row["lastname"];
- $fnameValue = $row["firstname"];
- }
- else if(isset($_POST["submit"])){
-  $emailValue = $_POST["email"];
-  $lnameValue = $_POST["lastName"];
-  $fnameValue = $_POST["firstName"];
-  
-  if(empty($emailValue) || empty($fnameValue) || empty($lnameValue) ){
-      $errorMesage = "all fileds must be filed out!";
-  }else{
-    
-    //create a new instance of client ($client) with inputs values
-    $prof = new Prof($fnameValue,$lnameValue,$emailValue,'');
-    //call the static updateClient method and give $client in the parameters
-    Prof::updateProf($prof , 'prof', $connection->conn , $_GET['id'] );
-      
-  }
- }
- ?>
- <!DOCTYPE html>
- <html lang="en">
- <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CRUD</title>
-  <link rel="stylesheet"
- href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
- >
-  <script
- src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min
- .js"></script>
- </head>
- <body>
-  <div class="container my-5 ">
-    <h2>Update</h2>
-  <?php
-  if(!empty($errorMesage)){
- echo "<div class='alert alert-warning alert-dismissible fade show'
- role='alert'>
- <strong>$errorMesage</strong>
- <button type='button' class='btn-close' data-bs-dismiss='alert'
- aria-label='Close'>
- </button>
- </div>";
-  }
-    ?>
-    <br>
-    <form method="post">
-      <div class="row mb-3">
-          <label class="col-form-label col-sm-1" for="fname">First
- Name:</label>
-          <div class="col-sm-6">
-            <input value="<?php echo $fnameValue ?>"
- class="form-control" type="text" id="fname" name="firstName">
-          </div>
-      </div>
-      <div class="row mb-3">
-          <label class="col-form-label col-sm-1" for="lname">Last
- Name:</label>
-          <div class="col-sm-6">
-            <input value="<?php echo $lnameValue ?>"
- class="form-control" type="text" id="lname" name="lastName">
-          </div>
-      </div>
-      <div class="row mb-3 ">
-          <label class="col-form-label col-sm-1"
- for="email">Email:</label>
-          <div class="col-sm-6">
-            <input value=" <?php echo $emailValue ?>"
- class="form-control" type="email" id="email" name="email">
-          </div>
-      </div>
-      
-      <?php
-      if(!empty($successMesage)){
- echo "<div class='alert alert-success alert-dismissible fade show'
- role='alert'>
- <strong>$successMesage</strong>
- <button type='button' class='btn-close' data-bs-dismiss='alert'
- aria-label='Close'>
-</button>
- </div>";
-      }
- ?> 
-   
-      <div class="row mb-3">
-          <div class="offset-sm-1 col-sm-3 d-grid">
-            <button name="submit" type="submit" class=" btn
- btn-primary">Update</button>
-          </div>
-          <div class="col-sm-1 col-sm-3 d-grid">
-            <a class="btn btn-outline-primary"
- href="read.php">Cancel</a>
-          </div>
-      </div>
-    </form>
-  </div>
- </body>
- </html>
+// Initialiser les variables
+$errorMesage = "";
+$successMesage = "";
+$fnameValue = $lnameValue = $emailValue = "";
+
+// Vérifier la méthode GET et l'existence de 'updatedId'
+if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+    if (isset($_GET['updatedId'])) {
+        $updatedId = $_GET['updatedId'];
+
+        // Récupérer les données à partir de la base de données
+        $row = Prof::selectProfById("prof", $connection->conn, $updatedId);
+
+        if ($row) {
+            $fnameValue = $row['firstname'];
+            $lnameValue = $row['lastname'];
+            $emailValue = $row['email'];
+        } else {
+            $errorMsg = "No record found with ID $updatedId.";
+        }
+    } else {
+        $errorMsg = "Missing 'updatedId' parameter.";
+    }
+}
+
+// Vérifier la méthode POST pour la mise à jour
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_GET['updatedId'])) {
+    $updatedId = $_GET['updatedId'];
+
+    // Récupérer les valeurs du formulaire
+    $fnameValue = $_POST['firstName'] ?? '';
+    $lnameValue = $_POST['lastName'] ?? '';
+    $emailValue = $_POST['email'] ?? '';
+
+    // Validation des champs
+    if (empty($fnameValue) || empty($lnameValue) || empty($emailValue)) {
+        $errorMsg = "All fields must be filled in.";
+    } else {
+        // Créer une instance de Prof et mettre à jour la base de données
+        $prof = new Prof($fnameValue, $lnameValue, $emailValue, '');
+        $updated = Prof::updateProf($prof, "prof", $connection->conn, $updatedId);
+
+        if ($updated) {
+            $successMesage = "Record updated successfully!";
+        } else {
+            $errorMsg = "Failed to update record.";
+        }
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD - Update</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container my-5">
+        <h2>Update Record</h2>
+
+        <!-- Afficher les messages d'erreur -->
+        <?php if (!empty($errorMesage)): ?>
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <strong><?= htmlspecialchars($errorMesage); ?></strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+
+        <!-- Formulaire de mise à jour -->
+        <form method="post">
+            <div class="row mb-3">
+                <label class="col-form-label col-sm-2" for="fname">First Name:</label>
+                <div class="col-sm-6">
+                    <input value="<?= htmlspecialchars($fnameValue); ?>" class="form-control" type="text" id="fname" name="firstName">
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label class="col-form-label col-sm-2" for="lname">Last Name:</label>
+                <div class="col-sm-6">
+                    <input value="<?= htmlspecialchars($lnameValue); ?>" class="form-control" type="text" id="lname" name="lastName">
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label class="col-form-label col-sm-2" for="email">Email:</label>
+                <div class="col-sm-6">
+                    <input value="<?= htmlspecialchars($emailValue); ?>" class="form-control" type="email" id="email" name="email">
+                </div>
+            </div>
+
+            <!-- Afficher les messages de succès -->
+            <?php if (!empty($successMesage)): ?>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong><?= htmlspecialchars($successMesage); ?></strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
+
+            <div class="row mb-3">
+                <div class="col-sm-6 offset-sm-2 d-grid">
+                    <button name="submit" type="submit" class="btn btn-primary">Update</button>
+                </div>
+                <div class="col-sm-2 d-grid">
+                    <a class="btn btn-outline-primary" href="read.php">Cancel</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

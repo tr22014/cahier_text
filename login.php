@@ -1,131 +1,84 @@
+<?php
+// Inclure le fichier de connexion
+include('connection.php');
+
+// Variables pour gérer les messages
+$errorMessage = "";
+$emailValue = "";
+
+// Vérifier si le formulaire a été soumis
+if (isset($_POST['login'])) {
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
+
+    // Vérification des champs vides
+    if (empty($email) || empty($password)) {
+        $errorMessage = "Tous les champs doivent être remplis !";
+    } else {
+        // Créer une instance de la classe Connection
+        $connection = new Connection();
+        $connection->selectDatabase('DB');
+
+        // Préparer et exécuter la requête SQL
+        $sql = "SELECT * FROM prof WHERE email = ? LIMIT 1";
+        $stmt = $connection->conn->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param('s', $email);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            // Vérifier si un utilisateur a été trouvé
+            if ($result->num_rows === 1) {
+                $user = $result->fetch_assoc();
+
+                // Vérifier le mot de passe avec password_verify
+                if (password_verify($password, $user['pass'])) {
+                    // Mot de passe correct, redirection vers la page "home.php"
+                    header("Location: home.php");
+                    exit();
+                } else {
+                    $errorMessage = "Mot de passe incorrect.";
+                }
+            } else {
+                $errorMessage = "Aucun utilisateur trouvé avec cet email.";
+            }
+        } else {
+            $errorMessage = "Erreur dans la requête SQL : " . $connection->conn->error;
+        }
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LOGIN</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            padding-top: 50px;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 500px;
-            margin: auto;
-        }
-
-        .card {
-            background: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            font-size: 2em;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .text-muted {
-            color: #777;
-            font-size: 0.9em;
-            text-align: center;
-        }
-
-        .x {
-            display: block;
-            margin: 10px 0 5px;
-        }
-
-        input[type="text"], input[type="email"], input[type="password"] {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        input[type="submit"] {
-            width: 100%;
-            padding: 12px;
-            background-color: #5cb85c;
-            border: none;
-            border-radius: 4px;
-            color: white;
-            font-size: 1.1em;
-        }
-
-        input[type="submit"]:hover {
-            background-color: #4cae4c;
-        }
-
-        .social-network {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .social-network li {
-            display: inline-block;
-            margin: 5px;
-        }
-
-        .social-network a {
-            font-size: 1.5em;
-            color: #555;
-            text-decoration: none;
-        }
-
-        .social-network a:hover {
-            color: #5cb85c;
-        }
-
-        .error-message {
-            color: red;
-            font-size: 0.9em;
-            text-align: center;
-            margin-top: 10px;
-        }
-    </style>
+    <title>Login</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 </head>
 <body>
-<div class="container"> 
-        <div class="row"> 
-            <div class="col-md-6"> 
-                <div class="card">
-                    <form action="" method="POST" class="box"> 
-                        <h1>Login</h1>
-                        <p class="text-muted">Please enter your credentials to log in!</p>
+<div class="container my-5">
+    <h2>Login</h2>
 
-                        <label for="login-email" class="x">Email:</label>
-                        <input type="email" id="login-email" name="email" placeholder="Email" required>
-                        
-                        <label for="login-password" class="x">Password:</label>
-                        <input type="password" id="login-password" name="password" placeholder="Password" required>
-                        
-                        <input type="submit" name="submit" value="Log In" >
-                        <p class="text-muted">Don't have an account? <a href="signup.php" style="text-decoration: none;">Sign Up</a></p>
-
-                        <?php
-                            if (isset($error)) {
-                                echo "<p class='error-message'>$error</p>";  // Afficher l'erreur si elle existe
-                            }
-                        ?>
-                        
-                        <div class="col-md-12">
-                            <ul class="social-network social-circle">
-                                <li><a href="https://web.facebook.com/" class="icoFacebook" title="Facebook"><i class="fab fa-facebook-f"></i></a></li> 
-                                <li><a href="https://x.com/" class="icoTwitter" title="Twitter"><i class="fab fa-twitter"></i></a></li> 
-                                <li><a href="https://www.google.com/" class="icoGoogle" title="Google"><i class="fab fa-google-plus"></i></a></li> 
-                            </ul>
-                        </div>
-                    </form>
-                </div>
-            </div>
+    <?php if (!empty($errorMessage)): ?>
+        <div class="alert alert-danger" role="alert">
+            <?php echo htmlspecialchars($errorMessage); ?>
         </div>
-    </div>
+    <?php endif; ?>
+
+    <form method="post">
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($emailValue); ?>" required>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Mot de passe</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+        <button type="submit" name="login" class="btn btn-primary">Login</button>
+        <a href="create.php" class="btn btn-secondary">Sign up</a>
+    </form>
+</div>
 </body>
 </html>
